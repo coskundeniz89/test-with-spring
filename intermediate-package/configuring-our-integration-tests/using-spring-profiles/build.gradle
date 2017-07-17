@@ -1,15 +1,18 @@
 buildscript {
-    repositories {
+    repositories{
+        mavenCentral()
         jcenter()
     }
     dependencies {
         classpath(
+                'org.springframework.boot:spring-boot-gradle-plugin:1.4.2.RELEASE',
                 'org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:1.2.0'
         )
     }
 }
 
 apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
 apply plugin: 'org.unbroken-dome.test-sets'
 
 //If you are using Gradle 2.1+, you can use the new Plugins DSL. The
@@ -31,18 +34,31 @@ tasks.withType(Test) {
     reports.html.destination = file("${reporting.baseDir}/${name}")
 }
 
+bootRun {
+    systemProperty('spring.profiles.active', 'application')
+}
+
 repositories {
     mavenCentral()
 }
 
+
 dependencies {
-    testCompile(
-            'junit:junit:4.12'
+    compile(
+            'org.springframework.boot:spring-boot-starter-jdbc',
+            'com.h2database:h2',
+            'com.zaxxer:HikariCP',
+            'org.liquibase:liquibase-core',
+            'org.springframework.boot:spring-boot-starter-web',
+            'org.springframework.boot:spring-boot-starter-thymeleaf'
     )
-//    integrationTestCompile(
-//            //Add dependencies that are required to compile
-//            //our integration tests.
-//    )
+    testCompile(
+            'org.springframework.boot:spring-boot-starter-test'
+    )
+    integrationTestCompile(
+            'org.dbunit:dbunit:2.5.3',
+            'com.github.springtestdbunit:spring-test-dbunit:1.3.0'
+    )
 //    integrationTestRuntime(
 //            //Add dependencies that are required to run
 //            //our integration tests.
@@ -60,7 +76,7 @@ test {
 
 integrationTest {
     useJUnit {
-        includeCategories 'com.testwithspring.intermediate.integrationtests.IntegrationTest'
+        includeCategories 'com.testwithspring.intermediate.IntegrationTest'
     }
     testLogging {
         showStandardStreams = true

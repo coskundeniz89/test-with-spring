@@ -1,15 +1,18 @@
 buildscript {
-    repositories {
+    repositories{
+        mavenCentral()
         jcenter()
     }
     dependencies {
         classpath(
+                'org.springframework.boot:spring-boot-gradle-plugin:1.5.1.RELEASE',
                 'org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:1.2.0'
         )
     }
 }
 
 apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
 apply plugin: 'org.unbroken-dome.test-sets'
 
 //If you are using Gradle 2.1+, you can use the new Plugins DSL. The
@@ -22,9 +25,12 @@ apply plugin: 'org.unbroken-dome.test-sets'
 
 testSets {
     integrationTest { dirName = 'integration-test' }
+    endToEndTest { dirName = 'end-to-end-test' }
 }
 
 check.dependsOn integrationTest
+check.dependsOn endToEndTest
+endToEndTest.mustRunAfter integrationTest
 integrationTest.mustRunAfter test
 
 tasks.withType(Test) {
@@ -35,9 +41,15 @@ repositories {
     mavenCentral()
 }
 
+
 dependencies {
+    compile(
+            'org.springframework.boot:spring-boot-starter-web',
+            'org.springframework.boot:spring-boot-starter-thymeleaf'
+    )
     testCompile(
-            'junit:junit:4.12'
+            'org.springframework.boot:spring-boot-starter-test',
+            'de.bechte.junit:junit-hierarchicalcontextrunner:4.12.1'
     )
 //    integrationTestCompile(
 //            //Add dependencies that are required to compile
@@ -47,11 +59,18 @@ dependencies {
 //            //Add dependencies that are required to run
 //            //our integration tests.
 //    )
+    endToEndTestCompile(
+            'org.seleniumhq.selenium:selenium-java:3.1.0'
+    )
+//    endToEndTestRuntime(
+//            //Add dependencies that are required to run our
+//            //end-to-end tests
+//    )
 }
 
 test {
     useJUnit {
-        includeCategories 'com.testwithspring.intermediate.unittests.UnitTest'
+        includeCategories 'com.testwithspring.intermediate.UnitTest'
     }
     testLogging {
         showStandardStreams = true
@@ -60,7 +79,16 @@ test {
 
 integrationTest {
     useJUnit {
-        includeCategories 'com.testwithspring.intermediate.integrationtests.IntegrationTest'
+        includeCategories 'com.testwithspring.intermediate.IntegrationTest'
+    }
+    testLogging {
+        showStandardStreams = true
+    }
+}
+
+endToEndTest {
+    useJUnit {
+        includeCategories 'com.testwithspring.intermediate.EndToEndTest'
     }
     testLogging {
         showStandardStreams = true

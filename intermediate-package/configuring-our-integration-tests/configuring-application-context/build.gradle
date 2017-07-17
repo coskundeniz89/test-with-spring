@@ -1,15 +1,18 @@
 buildscript {
-    repositories {
+    repositories{
+        mavenCentral()
         jcenter()
     }
     dependencies {
         classpath(
+                'org.springframework.boot:spring-boot-gradle-plugin:1.4.2.RELEASE',
                 'org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:1.2.0'
         )
     }
 }
 
 apply plugin: 'java'
+apply plugin: 'spring-boot'
 apply plugin: 'org.unbroken-dome.test-sets'
 
 //If you are using Gradle 2.1+, you can use the new Plugins DSL. The
@@ -35,9 +38,14 @@ repositories {
     mavenCentral()
 }
 
+
 dependencies {
+    compile(
+            'org.springframework.boot:spring-boot-starter-web',
+            'org.springframework.boot:spring-boot-starter-thymeleaf'
+    )
     testCompile(
-            'junit:junit:4.12'
+            'org.springframework.boot:spring-boot-starter-test'
     )
 //    integrationTestCompile(
 //            //Add dependencies that are required to compile
@@ -60,7 +68,7 @@ test {
 
 integrationTest {
     useJUnit {
-        includeCategories 'com.testwithspring.intermediate.integrationtests.IntegrationTest'
+        includeCategories 'com.testwithspring.intermediate.IntegrationTest'
     }
     testLogging {
         showStandardStreams = true
